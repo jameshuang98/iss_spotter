@@ -1,4 +1,4 @@
-const request = require("request");
+const request = require("request"); // request is an old library
 
 /**
  * Makes a single API request to retrieve the user's IP address.
@@ -10,6 +10,8 @@ const request = require("request");
  */
  const fetchMyIP = function(callback) { 
     let IP_Api = 'https://api64.ipify.org?format=json'
+
+    // Request is designed to be the simplest way possible to make http calls. I
     request(IP_Api, (error, response, body) => {
         
         // error can be set if invalid domain, user is offline, etc.
@@ -57,16 +59,16 @@ const request = require("request");
             return;
         }
 
-        const {latitude, longitude} = JSON.parse(body)
-        // data['latitude'] = JSON.parse(body['latitude']);
-        // data['longitude'] = JSON.parse(body['latitude']);
+        // object destructuring (readability, faster)
+        // Goes into body object and directly collects latitude and longitude values
+        const {latitude, longitude} = JSON.parse(body) 
         callback(error, {latitude, longitude})
     })
  };
 
 
  /**
- * Makes a single API request to retrieve upcoming ISS fly over times the for the given lat/lng coordinates.
+ * Makes a single API request to retrieve upcoming ISS fly over times for the given lat/lng coordinates.
  * Input:
  *   - An object with keys `latitude` and `longitude`
  *   - A callback (to pass back an error or the array of resulting data)
@@ -104,23 +106,23 @@ const fetchISSFlyOverTimes = function(coords, callback) {
  *   - The fly-over times as an array (null if error):
  *     [ { risetime: <number>, duration: <number> }, ... ]
  */ 
-const nextISSTimesForMyLocation = function(callback) {
+const nextISSTimesForMyLocation = function(finalCallback) {
     fetchMyIP((error, ip) => {
         if (error) {
-            return callback(error, null);
+            return finalCallback(error, null);
         }
   
         fetchCoordsByIP(ip, (error, loc) => {
             if (error) {
-                return callback(error, null);
+                return finalCallback(error, null);
             }
   
             fetchISSFlyOverTimes(loc, (error, nextPasses) => {
                 if (error) {
-                    return callback(error, null);
+                    return finalCallback(error, null);
                 }
   
-                callback(null, nextPasses);
+                finalCallback(null, nextPasses);
             });
         });
     });
